@@ -35,16 +35,16 @@ middleware adds additional functionaility to our application and provides a way 
 
 - [ ] Describe a Resource?
 
-  nouns, endpoints; data that is received when performing CRUD operations.
+  nouns, endpoints; data that is received when performing CRUD operations. a resource is an object with a type, associated data, relationship with other resources and some set of methods that operate on it; for example, a resource could be a list of hobbits thats our api is trying to access
 
 - [ ] What can the API return to help clients know if a request was successful?
 
-http status codes, error handlers to catch and let the client know of unsucessful requests. 
+http status codes (e.g res.status(200) for success), error handlers to catch and let the client know of unsucessful requests. we can add json messages as well to be clear to the client about what went wrong.
 
 
 - [ ] How can we partition our application into sub-applications?
 
- modularity  - server, routes, routers, db ...organization allow for better readibility for the next reviewer of your code.
+ we can use routers to split up our app into sub--applications and make incorporate modularity  - server, routes, routers, db ...organization allow for better readibility for the next reviewer of your code, and is easier to maintain.
 
 ## Project Setup
 
