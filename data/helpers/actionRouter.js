@@ -12,9 +12,7 @@ router.get("/", async (req, res) => {
     const actions = await db.get();
     res.status(200).json(actions);
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "The actions' information could not be retrieved." });
+    res.status(500).json({ message: "The actions' information could not be retrieved." });
   }
 });
 
@@ -23,17 +21,10 @@ router.get("/:id", async (req, res) => {
   const { id } = req.params;
   try {
     const action = await db.get(id);
-    if (action) {
       res.status(200).json(action);
-    } else {
-      res
-        .status(404)
-        .json({ message: "The action with the specified ID does not exist." });
-    }
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "The action's information could not be retrieved." });
+    console.log(error)
+    res.status(500).json({ message: "The action's information could not be retrieved." });
   }
 });
 
@@ -50,26 +41,12 @@ router.post("/", validateAction, async (req, res) => {
 });
 
 //Delete
-router.delete("/:id", async (req, res) => {
-  const { id } = req.params;
+router.delete("/:id", validateActionId, async (req, res) => {
   try {
-    const action = await db.get(id);
-    if (action) {
-      const deleted = await db.remove(id);
-      if (deleted) {
-        res.status(200).json(action);
-      } else {
-        res.status(500).json({ message: "The action could not be removed." });
-      }
-    } else {
-      res
-        .status(404)
-        .json({ message: "The action with the specified ID does not exist." });
-    }
-  } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Something went wrong when you made your request." });
+   res.status(200).json(await db.remove(req.params.id, req.body));
+  } catch(error){
+      console.log(error);
+      res.status(500).json({ message: "Error deleting action"})
   }
 });
 
@@ -85,6 +62,7 @@ router.put("/:id", validateActionId, async (req, res) => {
 
 //middleware for CRUD
 
+//Makes sure the action has all the info we need.  
 function validateAction (req, res, next) {
     if (!req.body.project_id) {
         res.status(400).json({ message: "Please correct your action id."})
@@ -94,8 +72,6 @@ function validateAction (req, res, next) {
        res.status(400).json({message: "Please add some notes about the action!"})
     } next(); 
    }
-
-// making sure the action we want to update or delete actually exists
 
 function validateActionId(req, res, next) {
     if (!req.params.id) {
