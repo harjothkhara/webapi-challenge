@@ -19,21 +19,13 @@ router.get("/", async (req, res) => {
 });
 
 //Read by id
-router.get("/:id", async (req, res) => {
-  const { id } = req.params;
+router.get("/:id/actions", async (req, res) => {
   try {
-    const project = await db.get(id);
-    if (project) {
-      res.status(200).json(project);
-    } else {
-      res
-        .status(404)
-        .json({ message: "The project with the specified ID does not exist." });
-    }
+    const project = await db.getProjectActions(req.params.id);
+    res.status(200).json(project);
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "The project's information could not be retrieved." });
+    console.log(error)
+    res.status(500).json({ message: "The projects' information could not be retrieved." });
   }
 });
 
@@ -49,51 +41,24 @@ router.post("/",validateProject, async (req, res) => {
 });
 
 //Delete
-router.delete("/:id", async (req, res) => {
-  const { id } = req.params;
+router.delete("/:id", validateProjectId, async (req, res) => {
   try {
-    const project = await db.get(id);
-    if (project) {
-      const deleted = await db.remove(id);
-      if (deleted) {
-        res.status(200).json(project);
-      } else {
-        res.status(500).json({ message: "The project could not be removed." });
-      }
-    } else {
-      res
-        .status(404)
-        .json({ message: "The project with the specified ID does not exist." });
-    }
+    res.status(200).json(await db.remove(req.params.id));   
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Something went wrong when you made your request." });
+    console.log(error);
+    res.status(500).json({ message: "Error removing project!" });
   }
 });
 
 //Update
-router.put("/:id", async (req, res) => {
-  const { id } = req.params;
-  const project = req.body;
-  if (!project.name || !project.description) {
-    res.status(400).json({ message: "Please provide a name and description." });
-  } else {
-    try {
-      const edited = await db.update(id, project);
-      if (edited) {
-        res.status(200).json(edited);
-      } else {
-        res
-          .status(500)
-          .json({ message: "The post information could not be modified." });
-      }
-    } catch (error) {
-      res
-        .status(500)
-        .json({ message: "Something went wrong when you made your request." });
+router.put("/:id", validateProjectId, async (req, res) => {
+  try {
+    res.status(200).json(await db.update(req.params.id, req.body))
+  } catch (error) {
+      console.log(error);
+      res.status(500).json({ message: "Error updating your project" });
     }
-  }
+  
 });
 
 //middleware for CRUD
