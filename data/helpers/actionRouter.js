@@ -1,8 +1,12 @@
 const express = require("express");
 
-const router = express.Router();
-const db = require("./data/helpers/actionModel.js");
+const db = require("./actionModel.js"); //bringing in data
 
+const router = express.Router(); //declaring router
+
+//Route Handlers
+
+//Read
 router.get("/", async (req, res) => {
   try {
     const actions = await db.get();
@@ -14,6 +18,7 @@ router.get("/", async (req, res) => {
   }
 });
 
+//Read by id
 router.get("/:id", async (req, res) => {
   const { id } = req.params;
   try {
@@ -32,30 +37,19 @@ router.get("/:id", async (req, res) => {
   }
 });
 
-router.post("/", async (req, res) => {
-  const action = req.body;
-  if (!action.project_id || action.description || action.ntoes) {
-    res.status(400).json({
-      message: "Please provide a project ID, notes and a description."
-    });
-  } else {
+//Create
+router.post("/", validateAction, async (req, res) => {
     try {
-      const newAction = await db.insert(action);
-      if (newAction) {
+      const newAction = await db.insert(req.body);
         res.status(200).json(newAction);
-      } else {
-        res.status(500).json({
-          message: "There was an error while saving the action to the database."
-        });
-      }
-    } catch (error) {
-      res
-        .status(500)
-        .json({ message: "Something went wrong when you made your request." });
+    } catch(error) {
+        console.log(error);
+        res.status(500).json({message: "There was an error while saving the action to the database."});
     }
-  }
+  
 });
 
+//Delete
 router.delete("/:id", async (req, res) => {
   const { id } = req.params;
   try {
@@ -79,31 +73,38 @@ router.delete("/:id", async (req, res) => {
   }
 });
 
-router.put("/:id", async (req, res) => {
-  const { id } = req.params;
-  const action = req.body;
-  if (!action.project_id || action.description || action.notes) {
-    res
-      .status(400)
-      .json({
-        message: "Please provide a project ID, notes and a description."
-      });
-  } else {
+//Update
+router.put("/:id", validateActionId, async (req, res) => {
     try {
-      const edited = await db.update(id, action);
-      if (edited) {
-        res.status(200).json(edited);
-      } else {
-        res
-          .status(500)
-          .json({ message: "The post information could not be modified." });
-      }
+        res.status(200).json(await db.update(req.params.id, req.body));
     } catch (error) {
-      res
-        .status(500)
-        .json({ message: "Something went wrong when you made your request." });
+     console.log(error); 
+    res.status(500).json({message: "Something went wrong when you made your request."})
     }
-  }
 });
+
+//middleware for CRUD
+
+function validateAction (req, res, next) {
+    if (!req.body.project_id) {
+        res.status(400).json({ message: "Please correct your action id."})
+    } else if (!req.body.description) {
+        res.status(400).json({message: "Please provide a description for your action."})
+    } else if (!req.body.notes) {
+       res.status(400).json({message: "Please add some notes about the action!"})
+    } next(); 
+   }
+
+// making sure the action we want to update or delete actually exists
+
+function validateActionId(req, res, next) {
+    if (!req.params.id) {
+        res.status(400).json({message: "invalid action id"});
+    } else {
+        req.action = `${req.params.id}`; 
+        next(); 
+    }
+}
+
 
 module.exports = router;

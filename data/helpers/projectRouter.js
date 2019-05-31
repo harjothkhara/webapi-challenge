@@ -1,8 +1,12 @@
 const express = require("express");
 
-const router = express.Router();
-const db = require("./data/helpers/projectModel.js");
+const db = require("./projectModel.js"); //bringing in data
 
+const router = express.Router(); //declaring router
+
+//Route Handlers
+
+//Read
 router.get("/", async (req, res) => {
   try {
     const projects = await db.get();
@@ -14,6 +18,7 @@ router.get("/", async (req, res) => {
   }
 });
 
+//Read by id
 router.get("/:id", async (req, res) => {
   const { id } = req.params;
   try {
@@ -32,29 +37,18 @@ router.get("/:id", async (req, res) => {
   }
 });
 
-router.post("/", async (req, res) => {
-  const project = req.body;
-  if (!project.name || !project.description) {
-    res.status(400).json({ message: "Please provide a name and description." });
-  } else {
+//Create
+router.post("/",validateProject, async (req, res) => {
     try {
-      const newProject = await db.insert(project);
-      if (newProject) {
-        res.status(200).json(newProject);
-      } else {
-        res.status(500).json({
-          message:
-            "There was an error while saving the project to the database."
-        });
-      }
-    } catch (error) {
-      res
-        .status(500)
-        .json({ message: "Something went wrong when you made your request." });
+      const newProject = await db.insert(req.body);
+      res.status(200).json(newProject);  
+    } catch(error) {
+      console.log(error)
+      res.status(500).json({ message: "There was an error while saving the project to the database." });
     }
-  }
 });
 
+//Delete
 router.delete("/:id", async (req, res) => {
   const { id } = req.params;
   try {
@@ -78,6 +72,7 @@ router.delete("/:id", async (req, res) => {
   }
 });
 
+//Update
 router.put("/:id", async (req, res) => {
   const { id } = req.params;
   const project = req.body;
@@ -100,5 +95,25 @@ router.put("/:id", async (req, res) => {
     }
   }
 });
+
+//middleware for CRUD
+
+function validateProject(req, res, next) {
+  if (!req.body.name) {
+      res.status(400).json({message: "Please add your project name"})
+  } else if (!req.body.description) {
+      res.status(400).json({message: "Please add a project description"})
+  } next(); 
+};
+
+// making sure the project we want to update or delete actually exists
+
+function validateProjectId(req, res, next) {
+  if (!req.params.id) {
+      res.status(400).json({message: "Invalid project id."})
+  } else {
+      req.project = `${req.params.id}`;
+  } next(); 
+}
 
 module.exports = router;
