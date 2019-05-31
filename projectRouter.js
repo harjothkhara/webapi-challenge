@@ -1,11 +1,11 @@
 const express = require("express");
 const router = express.Router;
-const db = require("./data/helpers/projectModel")
+const db = require("./data/helpers/projectModel.js")
 
 router.get("/", async (req, res) => {
     try {
         const projects = await db.get();
-        projects.status(200).json(projects);
+        res.status(200).json(projects);
     } catch(error){
         res.status(500).json({ message: "error"})
     }
@@ -14,7 +14,7 @@ router.get("/", async (req, res) => {
 router.get("/:id", async (req, res) => {
     const { id } = req.params;
     try {
-        const project = db.get(id);
+        const project = await db.get(id);
         if (project) {
             res.status(200).json(project);
         } else {
@@ -28,7 +28,12 @@ router.get("/:id", async (req, res) => {
 router.post("/", async (req, res) => {
     const project = req.body;
     try {
-        db.insert(project);
+        const newProject = await db.insert(project);
+        if (newProject) {
+            res.status(200).json(newProject);
+        }else {
+            res.status(500).json({ message: "error "})
+        }
     } catch(error){
         res.status(500).json({ message: "error"})
     }
@@ -37,7 +42,18 @@ router.post("/", async (req, res) => {
 router.delete("/:id", async (req, res) => {
     const { id } = req.params;
     try{
-        db.remove(id);
+        const project = await db.get(id);
+        if (project) {
+            const deleted = await db.remove(id);
+            if (deleted) {
+                res.status(200).json(project);
+            } else {
+                res.status(500).json({ message: "could not delete" });
+            }
+        } else {
+            res.status(404).json({ message: "error"})
+        }
+       
     } catch(error){
         res.status(500).json({ message: "error"})
     }
@@ -47,7 +63,12 @@ router.put("/:id", async (req, res) => {
     const { id } = req.params;
     const project = req.body;
     try {
-        db.update(id, project);
+        const edited = await db.update(id, project);
+        if (edited) {
+            res.status(200).json(edited);
+        } else {
+            res.status(404).json({ message: "error"})
+        }
     } catch(error){
         res.status(500).json({ message: "error"})
     }
