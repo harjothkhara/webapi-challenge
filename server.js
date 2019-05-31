@@ -5,7 +5,7 @@ const actionRouter = require("./actionRouter.js");
 
 const server = express();
 
-//middlewarere
+//middleware
 server.use(helmet());
 server.use(express.json());
 
