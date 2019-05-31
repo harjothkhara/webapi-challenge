@@ -26,13 +26,25 @@ Demonstrate your understanding of this Sprint's concepts by answering the follow
 
 - [ ] Mention two parts of Express that you learned about this week.
 
+1) create middleware to add security and change data before it hits the database 2) creating endpoints that perform CRUD operations
+
 - [ ] Describe Middleware?
+
+middleware adds additional functionaility to our application and provides a way to extend the features provided by the express framework.there are different types of middleware -- built-in, third party and custom. most of the code we write, including route handlers is middleware. its particularly useful for authentication/logging tasks.
+
 
 - [ ] Describe a Resource?
 
+  nouns, endpoints; data that is received when performing CRUD operations.
+
 - [ ] What can the API return to help clients know if a request was successful?
 
+http status codes, error handlers to catch and let the client know of unsucessful requests. 
+
+
 - [ ] How can we partition our application into sub-applications?
+
+ modularity  - server, routes, routers, db ...organization allow for better readibility for the next reviewer of your code.
 
 ## Project Setup
 
