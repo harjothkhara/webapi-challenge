@@ -17,6 +17,7 @@
     "challenge"
   ],
   "author": "Lambda School",
+  "license": "ISC",
   "bugs": {
     "url": "https://github.com/LambdaSchool/Sprint-Challenge-Node-Express/issues"
   },

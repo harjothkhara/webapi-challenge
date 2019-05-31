@@ -5,8 +5,8 @@ const actionRouter = require("./actionRouter.js");
 
 const server = express();
 
-//middleware
-server.use(helemt());
+//middlewarere
+server.use(helmet());
 server.use(express.json());
 
 server.use("/api/projects", projectRouter);
